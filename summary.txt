@@ -1,0 +1,14 @@
+
+sorted by average (values in minutes):
+duracell:  [2505, 2545, 2725] (avg 2591)
+amazon:    [2560, 2605, 2795] (avg 2653)
+energizer: [2685, 2715, 2745] (avg 2715)
+safeway:   [2635, 2695, 2880] (avg 2736)
+
+Died soonest:   duracell
+Lasted longest: safeway
+Best average:   safeway
+
+difference between best and worst: 375 minutes (6.25 hours)
+
+difference between best and worst average: 145 minutes (2.416 hours)

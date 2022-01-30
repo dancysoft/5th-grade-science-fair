@@ -1,0 +1,87 @@
+#!/usr/bin/python3
+
+# This script summarizes the data samples collected in the 'data/'
+# directory.  A battery is considered to have reach the end of its
+# test when its voltage has been at or below 1V for 4 consecutive data
+# samples.
+
+import csv
+import glob
+import os
+import re
+import statistics
+import sys
+
+THRESHOLD = 1.0
+REQUIRED_CONSECUTIVE = 4
+
+class Scanner():
+    def __init__(self, type):
+        self.type = type
+        self.threshold = THRESHOLD
+        self.required_consecutive = REQUIRED_CONSECUTIVE
+
+        self.consecutive = 0
+        self.threshold_reached_candidate = None # Minutes
+        self.threshold_reached_at = None # Minutes
+    
+    def add_sample(self, minutes, value):
+        if self.threshold_reached_at:
+            # Already satisfied
+            return
+        
+        if value > self.threshold:
+            self.consecutive = 0
+            self.threshold_reached_candidate = None
+            return
+
+        self.consecutive += 1
+
+        if self.threshold_reached_candidate is None:
+            self.threshold_reached_candidate = minutes
+
+        if self.consecutive >= self.required_consecutive:
+            # Reached the threshold
+            self.threshold_reached_at = self.threshold_reached_candidate
+            return
+
+def grok_battery_type(name):
+    types = [ "energizer", "duracell", "safeway", "amazon" ]
+
+    for type in types:
+        if name.startswith(type):
+            return type
+
+    raise ValueError("Unrecognized battery name: {}".format(name))
+        
+def analyze_data(source):
+    scanners = [None] * 3
+    
+    with open(source, "r") as f:
+        for row in csv.reader(f):
+            if row[0] == "Minutes":
+                # Header
+                for i in range(0,3):
+                    scanners[i] = Scanner(grok_battery_type(row[2+i]))
+            else:
+                # Data row
+                minutes = int(row[0])
+                for i in range(0,3):
+                    scanners[i].add_sample(minutes, float(row[2+i]))
+
+    for scanner in scanners:
+        update_battery_data(scanner.type, scanner.threshold_reached_at)
+
+def update_battery_data(type, minutes):
+    if battery_data.get(type):
+        battery_data[type].append(minutes)
+    else:
+        battery_data[type] = [ minutes ]
+
+battery_data = {}
+
+for source in glob.glob("data/*.csv"):
+    analyze_data(source)
+
+for type in battery_data.keys():
+    print("{}: {} (avg {})".format(type, battery_data[type], statistics.mean(battery_data[type])))

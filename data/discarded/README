@@ -1,0 +1,12 @@
+01-data.csv
+02-data.csv
+   The data collected in these files was not used for analysis because
+   they were collected before making improvements to the stability of the
+   measurement device connections.  They also tested 3 different brands
+   at once which turned out to be a bad testing strategy.
+
+04-safeway.csv
+   Another device was plugged into the host computer while this test
+   was running and it clearly affected the readings so it was thrown
+   out.  07-safeway.csv is the re-run.
+   
